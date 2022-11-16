@@ -38,7 +38,7 @@ pipeline {
                         }
                     }
                 }
-            }
+            }           
             post {
                 always {
                     echo "Clean local $APP_IMAGE_NAME image"
@@ -61,26 +61,14 @@ pipeline {
             }
             withCredentials([usernameColonPassword(credentialsId: 'schukka-harbor-auth', variable: 'HARBOR-AUTH')]) {
                     script {
-                        sh 'docker build -t $DB_IMAGE_NAME-$COMMIT_HASH -f ./app/Dockerfile ./afs-labs-student'
+                        sh 'docker build -t $DB_IMAGE_NAME-$COMMIT_HASH -f ./db/Dockerfile ./afs-labs-student'
                         docker.withRegistry('https://$HARBOR_REGISTRY', 'schukka-harbor-auth') {
                             sh 'docker tag $DB_IMAGE_NAME-$COMMIT_HASH $HARBOR_REGISTRY/$HARBOR_PROJECT/$DB_IMAGE_NAME:$COMMIT_HASH-$PIPELINE_HASH'
                             sh 'docker push $HARBOR_REGISTRY/$HARBOR_PROJECT/$DB_IMAGE_NAME:$COMMIT_HASH-$PIPELINE_HASH'
                         }
                     }
             }
-            post {
-                always {
-                    echo "Clean local $DB_IMAGE_NAME image"
-                    script {
-                        try {
-                            sh 'docker rmi $DB_IMAGE_NAME-$COMMIT_HASH:latest'
-                            sh 'docker rmi $HARBOR_REGISTRY/$HARBOR_PROJECT/$DB_IMAGE_NAME:$COMMIT_HASH-$PIPELINE_HASH'                            
-                        } catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
+            
             //TODO("Lab 4 - Artifact Management"): clean local docker db image
         }
         //TODO("Lab 7 - Automated Security Scans"): add a stage
