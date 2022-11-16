@@ -58,8 +58,7 @@ pipeline {
             steps {
                 echo "Building database image"
                 //TODO("Lab 4 - Artifact Management"): build the docker db image
-            }
-            withCredentials([usernameColonPassword(credentialsId: 'schukka-harbor-auth', variable: 'HARBOR-AUTH')]) {
+                withCredentials([usernameColonPassword(credentialsId: 'schukka-harbor-auth', variable: 'HARBOR-AUTH')]) {
                     script {
                         sh 'docker build -t $DB_IMAGE_NAME-$COMMIT_HASH -f ./db/Dockerfile ./afs-labs-student'
                         docker.withRegistry('https://$HARBOR_REGISTRY', 'schukka-harbor-auth') {
@@ -68,6 +67,8 @@ pipeline {
                         }
                     }
             }
+            }
+            
             
             //TODO("Lab 4 - Artifact Management"): clean local docker db image
         }
